@@ -31,18 +31,18 @@ def parse_args(args=None):
 
     parser.add_argument("--encoder", default="beit", type=str)
     parser.add_argument("--decoder", default="upernet", type=str)
-    parser.add_argument("--loss_type", default="ce", type=str)
+    parser.add_argument("--loss_type", default="dicefocal", type=str)
 
     parser.add_argument("--dropout_rate", default=0.0, type=float)
-    parser.add_argument("--learning_rate", default=1e-4, type=float)
-    parser.add_argument("--weight_decay", default=1e-5, type=float)
-    parser.add_argument("--warmup_steps", default=1000, type=int)
-    parser.add_argument("--max_steps", default=20000, type=int)
+    parser.add_argument("--learning_rate", default=3e-5, type=float)
+    parser.add_argument("--weight_decay", default=0.05, type=float)
+    parser.add_argument("--warmup_steps", default=20, type=int)
+    parser.add_argument("--max_steps", default=25000, type=int)
 
     ## Required parameters for trainer module
     parser.add_argument("--default_root_dir", default=".", type=str)
     parser.add_argument("--gpus", default=-1, type=int)
-    parser.add_argument("--val_check_interval", default=0.0, type=float)
+    parser.add_argument("--val_check_interval", default=1.0, type=float)
     parser.add_argument("--check_val_every_n_epoch", default=100, type=int)
     parser.add_argument("--gradient_clip_val", default=1.0, type=float)
     parser.add_argument("--accumulate_grad_batches", default=1, type=int)

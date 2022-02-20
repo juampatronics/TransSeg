@@ -120,7 +120,7 @@ class NIIDataLoader(pl.LightningDataModule):
                 AddChanneld(keys=["image", "label"])
                 if self.in_channels == 1
                 else AddChanneld(keys=["label"]),
-                Windowingd(keys=["image", "label"], size=5),
+                # Windowingd(keys=["image", "label"], size=5),
                 RandZoomd(
                     keys=["image", "label"],
                     min_zoom=0.5,
@@ -198,7 +198,7 @@ class NIIDataLoader(pl.LightningDataModule):
                 AddChanneld(keys=["image", "label"])
                 if self.in_channels == 1
                 else AddChanneld(keys=["label"]),
-                Windowingd(keys=["image", "label"], size=5),
+                # Windowingd(keys=["image", "label"], size=5),
                 # Spacingd(
                 #     keys=["image", "label"],
                 #     pixdim=(1.5, 1.5, 2.0),
@@ -222,7 +222,7 @@ class NIIDataLoader(pl.LightningDataModule):
             [
                 LoadImaged(keys=["image"]),
                 AddChanneld(keys=["image"]),
-                Windowingd(keys=["image", "label"], size=5),
+                # Windowingd(keys=["image", "label"], size=5),
                 ScaleIntensityRanged(
                     keys=["image"],
                     a_min=self.unit_range[0],
@@ -236,7 +236,7 @@ class NIIDataLoader(pl.LightningDataModule):
             if self.in_channels == 1
             else [
                 LoadImaged(keys=["image"]),
-                Windowingd(keys=["image"], size=5),
+                # Windowingd(keys=["image"], size=5),
                 ScaleIntensityRanged(
                     keys=["image"],
                     a_min=self.unit_range[0],
@@ -255,15 +255,9 @@ class NIIDataLoader(pl.LightningDataModule):
         data_config = json.load(open(data_config_file))
         print(f"Loading data config from {data_config_file}...")
 
-        all_files = load_decathlon_datalist(data_config_file, data_list_key="training")
-        random.seed(1234)
-        random.shuffle(all_files)
-        train_files = all_files[: int(0.8 * len(all_files))]
-        val_files = all_files[int(0.8 * len(all_files)) : int(0.95 * len(all_files))]
-        test_files = all_files[int(0.95 * len(all_files)) :]
-        # if 'local_test' in data_config: test_files = load_decathlon_datalist(data_config_file, data_list_key='local_test')
-        # elif 'test' in data_config: test_files = load_decathlon_datalist(data_config_file, data_list_key='test')
-        # else: test_files = []
+        train_files = load_decathlon_datalist(data_config_file, data_list_key="training")
+        val_files = load_decathlon_datalist(data_config_file, data_list_key="validation")
+        test_files = load_decathlon_datalist(data_config_file, data_list_key="local_test")
 
         self.train_ds = CacheDataset(
             data=train_files,
@@ -272,15 +266,17 @@ class NIIDataLoader(pl.LightningDataModule):
             cache_num=64,
         )
         self.val_ds = CacheDataset(
-            data=val_files, transform=self.val_transforms, num_workers=3, cache_num=64
+            data=val_files, 
+            transform=self.val_transforms, 
+            num_workers=3, 
+            cache_num=64
         )
-        # self.test_ds = CacheDataset(
-        #     data=test_files,
-        #     transform=self.val_transforms if 'local_test' in data_config else self.test_transforms,
-        #     num_workers=3,
-        #     cache_num=64
-        # )
-        self.test_ds = []
+        self.test_ds = CacheDataset(
+            data=test_files,
+            transform=self.val_transforms # set to test_transforms when submitting leaderboard,
+            num_workers=3,
+            cache_num=64
+        )
         print(
             f"# Train: {len(self.train_ds)}, # Val: {len(self.val_ds)}, # Test: {len(self.test_ds)}..."
         )
