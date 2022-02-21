@@ -191,7 +191,7 @@ class SegmentationModel(pl.LightningModule):
             raise
 
     def forward(self, inputs):  # inputs: B x Cin x H x W x D
-        x = inputs.permute(0, 1, 4, 2, 3).contiguous()  # x: B x Cin x D x H x W
+        x = inputs.permute(0, 1, 4, 2, 3).contiguous().float()  # x: B x Cin x D x H x W
         xs = self.encoder(x)  # hiddens: list of B x T x hidden, where T = H/P x W/P
         if self.hparams.encoder not in ["swint", "swint3d"]:
             xs = [

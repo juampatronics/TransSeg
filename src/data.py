@@ -120,6 +120,7 @@ class NIIDataLoader(pl.LightningDataModule):
                 AddChanneld(keys=["image", "label"])
                 if self.in_channels == 1
                 else AddChanneld(keys=["label"]),
+                Resized(keys=["image", "label"], spatial_size=self.img_size, mode=['area', 'nearest']),
                 # Windowingd(keys=["image", "label"], size=5),
                 RandZoomd(
                     keys=["image", "label"],
@@ -142,7 +143,7 @@ class NIIDataLoader(pl.LightningDataModule):
                     keys=["image"],
                     a_min=self.unit_range[0],
                     a_max=self.unit_range[1],
-                    b_min=0.0,
+                    b_min=-1.0,
                     b_max=1.0,
                     clip=True,
                 ),
@@ -188,7 +189,6 @@ class NIIDataLoader(pl.LightningDataModule):
                     prob=0.50,
                 ),
                 SpatialPadd(keys=["image", "label"], spatial_size=self.img_size),
-                # Resized(keys=["image", "label"], spatial_size=(128, 128, 128), mode=['area', 'nearest']),
                 ToTensord(keys=["image", "label"]),
             ]
         )
@@ -198,6 +198,7 @@ class NIIDataLoader(pl.LightningDataModule):
                 AddChanneld(keys=["image", "label"])
                 if self.in_channels == 1
                 else AddChanneld(keys=["label"]),
+                Resized(keys=["image", "label"], spatial_size=self.img_size, mode=['area', 'nearest']),
                 # Windowingd(keys=["image", "label"], size=5),
                 # Spacingd(
                 #     keys=["image", "label"],
@@ -214,7 +215,6 @@ class NIIDataLoader(pl.LightningDataModule):
                     clip=True,
                 ),
                 # CropForegroundd(keys=["image", "label"], source_key="image"),
-                # Resized(keys=["image", "label"], spatial_size=(128, 128, 128), mode=['area', 'nearest']),
                 ToTensord(keys=["image", "label"]),
             ]
         )
@@ -273,7 +273,7 @@ class NIIDataLoader(pl.LightningDataModule):
         )
         self.test_ds = CacheDataset(
             data=test_files,
-            transform=self.val_transforms # set to test_transforms when submitting leaderboard,
+            transform=self.val_transforms, # set to test_transforms when submitting leaderboard
             num_workers=3,
             cache_num=64
         )
