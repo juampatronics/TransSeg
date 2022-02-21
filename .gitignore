@@ -1,4 +1,7 @@
 *.pth
+src/wandb
+src/MedicalSegmentation
+src/dumps
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
