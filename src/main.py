@@ -17,7 +17,8 @@ def parse_args(args=None):
     parser.add_argument(
         "--eval_batch_size", default=1, type=int
     )  # <TODO>: eval batch size must be 1 for UNETR 3D!
-    parser.add_argument("--unit_range", default=(-175, 250), type=int, nargs="+")
+    parser.add_argument("--clip_range", default=(-175, 250), type=int, nargs="+")
+    parser.add_argument("--mean_std", default=None, type=float, nargs="+")
 
     ## Required parameters for model module
     parser.add_argument("--force_2d", default=0, type=int)
@@ -71,7 +72,8 @@ def train(args):
         split_json=args.split_json,
         img_size=args.img_size,
         in_channels=args.in_channels,
-        unit_range=args.unit_range,
+        clip_range=args.clip_range,
+        mean_std=args.mean_std,
         train_batch_size=args.train_batch_size,
         eval_batch_size=args.eval_batch_size,
     )
@@ -134,7 +136,8 @@ def evaluate(args):
         split_json=args.split_json,
         img_size=args.img_size,
         in_channels=args.in_channels,
-        unit_range=args.unit_range,
+        clip_range=args.clip_range,
+        mean_std=args.mean_std,
         train_batch_size=args.train_batch_size,
         eval_batch_size=args.eval_batch_size,
     )

@@ -18,6 +18,7 @@ from monai.transforms import (
     RandCropByPosNegLabeld,
     RandSpatialCropSamplesd,
     RandShiftIntensityd,
+    NormalizeIntensityd,
     ScaleIntensityRanged,
     Spacingd,
     RandRotate90d,
@@ -94,7 +95,8 @@ class NIIDataLoader(pl.LightningDataModule):
         split_json="dataset_5slices.json",
         img_size: tuple = (512, 512, 5),
         in_channels: int = 1,
-        unit_range: tuple = (-175, 250),
+        clip_range: tuple = (-175, 250),
+        mean_std: tuple = None,
         train_batch_size: int = 2,
         eval_batch_size: int = 2,
     ):
@@ -103,7 +105,8 @@ class NIIDataLoader(pl.LightningDataModule):
         self.split_json = split_json
         self.img_size = img_size
         self.in_channels = in_channels
-        self.unit_range = unit_range
+        self.clip_range = clip_range
+        self.mean_std = mean_std
         self.train_batch_size = train_batch_size
         self.eval_batch_size = eval_batch_size
 
@@ -141,11 +144,18 @@ class NIIDataLoader(pl.LightningDataModule):
                 # Orientationd(keys=["image", "label"], axcodes="RAS"),
                 ScaleIntensityRanged(
                     keys=["image"],
-                    a_min=self.unit_range[0],
-                    a_max=self.unit_range[1],
-                    b_min=0.0,
-                    b_max=1.0,
+                    a_min=self.clip_range[0],
+                    a_max=self.clip_range[1],
+                    b_min=self.clip_range[0],
+                    b_max=self.clip_range[1],
                     clip=True,
+                ),
+                NormalizeIntensityd(
+                    keys=["image"],
+                    subtrahend=None if self.mean_std is None else [self.mean_std[0]],
+                    divisor=None if self.mean_std is None else [self.mean_std[1]],
+                    nonzero=False, 
+                    channel_wise=True
                 ),
                 # CropForegroundd(keys=["image", "label"], source_key="image"),
                 # RandSpatialCropSamplesd(
@@ -208,11 +218,18 @@ class NIIDataLoader(pl.LightningDataModule):
                 # Orientationd(keys=["image", "label"], axcodes="RAS"),
                 ScaleIntensityRanged(
                     keys=["image"],
-                    a_min=self.unit_range[0],
-                    a_max=self.unit_range[1],
-                    b_min=0.0,
-                    b_max=1.0,
+                    a_min=self.clip_range[0],
+                    a_max=self.clip_range[1],
+                    b_min=self.clip_range[0],
+                    b_max=self.clip_range[1],
                     clip=True,
+                ),
+                NormalizeIntensityd(
+                    keys=["image"],
+                    subtrahend=None if self.mean_std is None else [self.mean_std[0]],
+                    divisor=None if self.mean_std is None else [self.mean_std[1]],
+                    nonzero=False, 
+                    channel_wise=True
                 ),
                 # CropForegroundd(keys=["image", "label"], source_key="image"),
                 ToTensord(keys=["image", "label"]),
@@ -225,8 +242,8 @@ class NIIDataLoader(pl.LightningDataModule):
                 # Windowingd(keys=["image", "label"], size=5),
                 ScaleIntensityRanged(
                     keys=["image"],
-                    a_min=self.unit_range[0],
-                    a_max=self.unit_range[1],
+                    a_min=self.clip_range[0],
+                    a_max=self.clip_range[1],
                     b_min=0.0,
                     b_max=1.0,
                     clip=True,
@@ -239,8 +256,8 @@ class NIIDataLoader(pl.LightningDataModule):
                 # Windowingd(keys=["image"], size=5),
                 ScaleIntensityRanged(
                     keys=["image"],
-                    a_min=self.unit_range[0],
-                    a_max=self.unit_range[1],
+                    a_min=self.clip_range[0],
+                    a_max=self.clip_range[1],
                     b_min=0.0,
                     b_max=1.0,
                     clip=True,
