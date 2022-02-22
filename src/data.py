@@ -143,7 +143,7 @@ class NIIDataLoader(pl.LightningDataModule):
                     keys=["image"],
                     a_min=self.unit_range[0],
                     a_max=self.unit_range[1],
-                    b_min=-1.0,
+                    b_min=0.0,
                     b_max=1.0,
                     clip=True,
                 ),
