@@ -15,7 +15,7 @@ python main.py \
   --img_size 240 240 5 \
   --clip_range -1000000 1000000 \
   --in_channels 4 \
-  --out_channels 3 \
+  --out_channels 4 \
   --max_steps 25000 \
   --train_batch_size 2 \
   --eval_batch_size 2 \
