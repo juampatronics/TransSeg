@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #SBATCH --job-name=msd_2d
-#SBATCH --cpus-per-task=48
-#SBATCH --mem-per-cpu=2gb
+#SBATCH --cpus-per-task=16
+#SBATCH --mem-per-cpu=6gb
 #SBATCH --partition=pasteur
 #SBATCH --gres=gpu:4
 #SBATCH --time=24:00:00

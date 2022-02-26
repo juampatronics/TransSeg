@@ -303,7 +303,7 @@ class NIIDataLoader(pl.LightningDataModule):
             self.train_ds,
             batch_size=self.train_batch_size,
             shuffle=True,
-            num_workers=6,
+            num_workers=4,
             pin_memory=True,
         )
 
@@ -312,7 +312,7 @@ class NIIDataLoader(pl.LightningDataModule):
             self.val_ds,
             batch_size=self.eval_batch_size,
             shuffle=False,
-            num_workers=3,
+            num_workers=4,
             pin_memory=True,
         )
 
@@ -321,7 +321,7 @@ class NIIDataLoader(pl.LightningDataModule):
             self.test_ds,
             batch_size=self.eval_batch_size,
             shuffle=False,
-            num_workers=3,
+            num_workers=4,
             pin_memory=True,
         )
 
