@@ -354,7 +354,7 @@ class SegmentationModel(pl.LightningModule):
         logits = [
             output for x in outputs for output in x["outputs"]
         ]  # N of image shape
-        if "label" in outputs[0]:
+        if "labels" in outputs[0]:
             loss = np.array([x["loss"] for x in outputs]).mean()
             dice_loss = np.array([x["dice_loss"] for x in outputs]).mean()
             ce_loss = np.array([x["ce_loss"] for x in outputs]).mean()
