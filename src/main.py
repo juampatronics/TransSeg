@@ -151,7 +151,8 @@ def evaluate(args):
         precision=args.precision,
         accelerator=args.accelerator,
         logger=wandb_logger,
-        # limit_val_batches=1, # TODO: uncomment for debugging
+        # limit_val_batches=656, # TODO: uncomment for debugging
+        # limit_test_batches=656, # TODO: uncomment for debugging
     )
     trainer.validate(model, datamodule=dm)
     trainer.test(model, datamodule=dm)
