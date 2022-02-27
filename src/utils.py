@@ -1,6 +1,42 @@
+import json
+from collections import OrderedDict
+
 import mmcv
 import numpy as np
 from torch.optim.lr_scheduler import LambdaLR
+
+
+# FIXME: This should have been a member var of the model class
+# But putting it in utils for now to avoid interface mismatch with old checkpoints
+# Format: val/test -> list(int) of number of slices per image
+IMG_NUM_SLICES = None
+
+
+def load_img_num_slices(data_dir, split_json):
+    global IMG_NUM_SLICES
+    if IMG_NUM_SLICES is not None:
+        return IMG_NUM_SLICES
+
+    IMG_NUM_SLICES = dict()
+
+    data_config = json.load(open(f'{data_dir}/{split_json}'))
+    for split in ["validation", "local_test"]:
+
+        img_id_to_num_slices = OrderedDict()
+        for img_config in data_config[split]:
+            img_id, slice_id = img_config['label'].split('/')[-1].replace('.nii.gz', '').split('_')[1:3]
+            img_id, slice_id = int(img_id), int(slice_id)
+            if img_id not in img_id_to_num_slices:
+                img_id_to_num_slices[img_id] = 0
+            img_id_to_num_slices[img_id] += 1
+
+        IMG_NUM_SLICES[split] = []
+        for img_id, num_slices in img_id_to_num_slices.items():
+            IMG_NUM_SLICES[split].append(num_slices)
+
+
+def get_img_num_slices(split):
+    return IMG_NUM_SLICES[split]
 
 
 def to_list(tensor):
@@ -232,21 +268,78 @@ def mean_dice(
     return all_acc, acc, dice
 
 
-def eval_metrics(
+# def eval_metrics(
+#     results,
+#     gt_seg_maps,
+#     num_classes,
+#     ignore_index=255,
+#     metrics=["mIoU"],
+#     nan_to_num=None,
+#     label_map=dict(),
+#     reduce_zero_label=False,
+# ):
+#     """Calculate evaluation metrics
+#     Args:
+#         results (list[ndarray]): List of prediction segmentation maps.
+#         gt_seg_maps (list[ndarray]): list of ground truth segmentation maps.
+#         num_classes (int): Number of categories.
+#         ignore_index (int): Index that will be ignored in evaluation.
+#         metrics (list[str] | str): Metrics to be evaluated, 'mIoU' and 'mDice'.
+#         nan_to_num (int, optional): If specified, NaN values will be replaced
+#             by the numbers defined by the user. Default: None.
+#         label_map (dict): Mapping old labels to new labels. Default: dict().
+#         reduce_zero_label (bool): Wether ignore zero label. Default: False.
+#      Returns:
+#          float: Overall accuracy on all images.
+#          ndarray: Per category accuracy, shape (num_classes, ).
+#          ndarray: Per category evalution metrics, shape (num_classes, ).
+#     """
+
+#     if isinstance(metrics, str):
+#         metrics = [metrics]
+#     allowed_metrics = ["mIoU", "mDice"]
+#     if not set(metrics).issubset(set(allowed_metrics)):
+#         raise KeyError("metrics {} is not supported".format(metrics))
+#     (
+#         total_area_intersect,
+#         total_area_union,
+#         total_area_pred_label,
+#         total_area_label,
+#     ) = total_intersect_and_union(
+#         results, gt_seg_maps, num_classes, ignore_index, label_map, reduce_zero_label
+#     )
+#     all_acc = total_area_intersect.sum() / total_area_label.sum()
+#     acc = total_area_intersect / total_area_label
+#     ret_metrics = [all_acc, acc]
+#     for metric in metrics:
+#         if metric == "mIoU":
+#             iou = total_area_intersect / total_area_union
+#             ret_metrics.append(iou)
+#         elif metric == "mDice":
+#             dice = 2 * total_area_intersect / (total_area_pred_label + total_area_label)
+#             ret_metrics.append(dice)
+#     if nan_to_num is not None:
+#         ret_metrics = [np.nan_to_num(metric, nan=nan_to_num) for metric in ret_metrics]
+#     return ret_metrics
+
+
+def eval_metrics_per_img(
     results,
     gt_seg_maps,
     num_classes,
+    img_num_slices,
     ignore_index=255,
     metrics=["mIoU"],
     nan_to_num=None,
     label_map=dict(),
     reduce_zero_label=False,
 ):
-    """Calculate evaluation metrics
+    """Calculate evaluation metrics, grouped by each 3D image.
     Args:
         results (list[ndarray]): List of prediction segmentation maps.
         gt_seg_maps (list[ndarray]): list of ground truth segmentation maps.
         num_classes (int): Number of categories.
+        img_num_slices (list[int]): list of number of slices for each patient.
         ignore_index (int): Index that will be ignored in evaluation.
         metrics (list[str] | str): Metrics to be evaluated, 'mIoU' and 'mDice'.
         nan_to_num (int, optional): If specified, NaN values will be replaced
@@ -258,30 +351,53 @@ def eval_metrics(
          ndarray: Per category accuracy, shape (num_classes, ).
          ndarray: Per category evalution metrics, shape (num_classes, ).
     """
-
     if isinstance(metrics, str):
         metrics = [metrics]
     allowed_metrics = ["mIoU", "mDice"]
     if not set(metrics).issubset(set(allowed_metrics)):
         raise KeyError("metrics {} is not supported".format(metrics))
-    (
-        total_area_intersect,
-        total_area_union,
-        total_area_pred_label,
-        total_area_label,
-    ) = total_intersect_and_union(
-        results, gt_seg_maps, num_classes, ignore_index, label_map, reduce_zero_label
-    )
-    all_acc = total_area_intersect.sum() / total_area_label.sum()
-    acc = total_area_intersect / total_area_label
-    ret_metrics = [all_acc, acc]
+    if sum(img_num_slices) != len(results):
+        raise ValueError(
+            "Total number of image slices must be equal to results."
+            f"Got {sum(img_num_slices)} != {len(results)}.")
+
+    ret_all_acc = []
+    ret_acc = []
+    ret_iou = []
+    ret_dice = []
+
+    idx_start = 0
+    for num_slices in img_num_slices:
+        idx_end = idx_start + num_slices
+        img_results = results[idx_start : idx_end]
+        img_gt_seg_maps = gt_seg_maps[idx_start : idx_end]
+        (
+            img_area_intersect,
+            img_area_union,
+            img_area_pred_label,
+            img_area_label,
+        ) = total_intersect_and_union(
+            img_results, img_gt_seg_maps, num_classes, ignore_index, label_map, reduce_zero_label
+        )
+        img_all_acc = img_area_intersect.sum() / img_area_label.sum()
+        img_acc = img_area_intersect / img_area_label
+        img_iou = img_area_intersect / img_area_union
+        img_dice = 2 * img_area_intersect / (img_area_pred_label + img_area_label)
+        
+        ret_all_acc.append(img_all_acc)
+        ret_acc.append(img_acc)
+        ret_iou.append(img_iou)
+        ret_dice.append(img_dice)
+
+        idx_start = idx_end
+    
+    # If an image has NaN metric, then skip it in the global mean. 
+    ret_metrics = [np.nanmean(ret_all_acc), np.nanmean(ret_acc, axis=0)]
     for metric in metrics:
         if metric == "mIoU":
-            iou = total_area_intersect / total_area_union
-            ret_metrics.append(iou)
+            ret_metrics.append(np.nanmean(ret_iou, axis=0))
         elif metric == "mDice":
-            dice = 2 * total_area_intersect / (total_area_pred_label + total_area_label)
-            ret_metrics.append(dice)
+            ret_metrics.append(np.nanmean(ret_dice, axis=0))
     if nan_to_num is not None:
         ret_metrics = [np.nan_to_num(metric, nan=nan_to_num) for metric in ret_metrics]
     return ret_metrics
@@ -291,5 +407,12 @@ if __name__ == "__main__":
     results = [np.ones((3, 3)), np.ones((3, 3))]
     gt_seg_maps = [np.ones((3, 3)), np.ones((3, 3))]
     num_classes = 5
-    metrics = eval_metrics(results, gt_seg_maps, num_classes, metrics=["mIoU", "mDice"])
+    img_num_slices = [1, 1]
+    metrics = eval_metrics_per_img(results, gt_seg_maps, num_classes, img_num_slices, metrics=["mIoU", "mDice"])
+    # metrics = eval_metrics(results, gt_seg_maps, num_classes, metrics=["mIoU", "mDice"])
     print(metrics)
+    load_img_num_slices(
+        data_dir="/sailhome/yuhuiz/develop/data/MedicalImages/msd/processed/Task07_Pancreas/",
+        split_json="dataset_5slices.json")
+    print(get_img_num_slices("validation"))
+    print(get_img_num_slices("local_test"))

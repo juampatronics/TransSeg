@@ -6,7 +6,7 @@ import numpy as np
 import pytorch_lightning as pl
 import datetime
 import pickle
-from utils import eval_metrics, to_list, get_linear_schedule_with_warmup
+from utils import eval_metrics_per_img, get_img_num_slices, to_list, get_linear_schedule_with_warmup
 
 from monai.losses import DiceCELoss, DiceFocalLoss
 from monai.networks.nets.vit import ViT
@@ -276,8 +276,10 @@ class SegmentationModel(pl.LightningModule):
             output for x in outputs for output in x["outputs"]
         ]  # N of image shape
 
-        acc, accs, ious, dices = eval_metrics(
-            preds, labels, self.hparams.out_channels, metrics=["mIoU", "mDice"]
+        acc, accs, ious, dices = eval_metrics_per_img(
+            preds, labels, self.hparams.out_channels, 
+            img_num_slices=get_img_num_slices("validation"),
+            metrics=["mIoU", "mDice"]
         )
         print("!!!")
         print(dices)
@@ -362,8 +364,10 @@ class SegmentationModel(pl.LightningModule):
                 label.squeeze(0) for x in outputs for label in x["labels"]
             ]  # N of image shape
 
-            acc, accs, ious, dices = eval_metrics(
-                preds, labels, self.hparams.out_channels, metrics=["mIoU", "mDice"]
+            acc, accs, ious, dices = eval_metrics_per_img(
+                preds, labels, self.hparams.out_channels, 
+                img_num_slices=get_img_num_slices("local_test"),
+                metrics=["mIoU", "mDice"]
             )
             print("!!!")
             print(dices)
