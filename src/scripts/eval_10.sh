@@ -22,4 +22,4 @@ python main.py \
   --eval_batch_size 2 \
   --accumulate_grad_batches 4 \
   --evaluation 1 \
-  --model_path MedicalSegmentation/3gtuhvwf/checkpoints/epoch=68-step=23804.ckpt
+  --model_path MedicalSegmentation/3gtuhvwf/checkpoints/epoch=68-step=23804.ckpt > eval_3d_task10.log

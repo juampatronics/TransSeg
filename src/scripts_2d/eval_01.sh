@@ -22,4 +22,4 @@ python main.py \
   --accumulate_grad_batches 4 \
   --force_2d 1 \
   --evaluation 1 \
-  --model_path MedicalSegmentation/35n7ddsm/checkpoints/epoch=12-step=24374.ckpt
+  --model_path MedicalSegmentation/35n7ddsm/checkpoints/epoch=12-step=24374.ckpt > eval_2d_task01.log
