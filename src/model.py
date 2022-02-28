@@ -249,11 +249,11 @@ class SegmentationModel(pl.LightningModule):
             "loss": loss.item(),
             "dice_loss": dice_loss.item(),
             "ce_loss": ce_loss.item(),
-            "labels": to_list(labels),
-            "outputs": to_list(outputs),
-            "inputs": to_list(inputs)
-            if self.hparams.force_2d
-            else to_list(inputs[:, :, :, :, n_slices // 2]),
+            "labels": to_list(labels.squeeze(dim=1)),
+            "preds": to_list(outputs.argmax(dim=1)),
+            # "inputs": to_list(inputs)
+            # if self.hparams.force_2d
+            # else to_list(inputs[:, :, :, :, n_slices // 2]),
         }
 
     def validation_epoch_end(self, outputs):
@@ -262,19 +262,17 @@ class SegmentationModel(pl.LightningModule):
         ce_loss = np.array([x["ce_loss"] for x in outputs]).mean()
 
         labels = [
-            label.squeeze(0) for x in outputs for label in x["labels"]
+            label for x in outputs for label in x["labels"]
         ]  # N of image shape
         preds = [
-            output.argmax(0) for x in outputs for output in x["outputs"]
+            pred for x in outputs for pred in x["preds"]
         ]  # N of image shape
-        inputs = [
-            input.squeeze(0) if input.shape[0] == 1 else input
-            for x in outputs
-            for input in x["inputs"]
-        ]  # N of image shape
-        logits = [
-            output for x in outputs for output in x["outputs"]
-        ]  # N of image shape
+        inputs = [None] * len(preds)
+        # inputs = [
+        #     input.squeeze(0) if input.shape[0] == 1 else input
+        #     for x in outputs
+        #     for input in x["inputs"]
+        # ]  # N of image shape
 
         acc, accs, ious, dices = eval_metrics_per_img(
             preds, labels, self.hparams.out_channels, 
@@ -304,8 +302,8 @@ class SegmentationModel(pl.LightningModule):
             cur_time = datetime.datetime.today().strftime("%Y%m%d-%H%M%S")
             with open(f"dumps/val-{cur_time}.pkl", "wb") as fout:
                 pickler = pickle.Pickler(fout)
-                for input, logit, label in zip(inputs, logits, labels):
-                    pickler.dump({"input": input, "logit": logit, "label": label})
+                for input, pred, label in zip(inputs, preds, labels):
+                    pickler.dump({"input": input, "pred": pred, "label": label})
 
         return loss
 
@@ -330,38 +328,36 @@ class SegmentationModel(pl.LightningModule):
                 "loss": loss.item(),
                 "dice_loss": dice_loss.item(),
                 "ce_loss": ce_loss.item(),
-                "labels": to_list(labels),
-                "outputs": to_list(outputs),
-                "inputs": to_list(inputs)
-                if self.hparams.force_2d
-                else to_list(inputs[:, :, :, :, n_slices // 2]),
+                "labels": to_list(labels.squeeze(dim=1)),
+                "preds": to_list(outputs.argmax(dim=1)),
+                # "inputs": to_list(inputs)
+                # if self.hparams.force_2d
+                # else to_list(inputs[:, :, :, :, n_slices // 2]),
             }
         else:
             return {
-                "outputs": to_list(outputs),
-                "inputs": to_list(inputs)
-                if self.hparams.force_2d
-                else to_list(inputs[:, :, :, :, n_slices // 2]),
+                "preds": to_list(outputs.argmax(dim=1)),
+                # "inputs": to_list(inputs)
+                # if self.hparams.force_2d
+                # else to_list(inputs[:, :, :, :, n_slices // 2]),
             }
 
     def test_epoch_end(self, outputs):
         preds = [
-            output.argmax(0) for x in outputs for output in x["outputs"]
+            pred for x in outputs for pred in x["preds"]
         ]  # N of image shape
-        inputs = [
-            input.squeeze(0) if input.shape[0] == 1 else input
-            for x in outputs
-            for input in x["inputs"]
-        ]  # N of image shape
-        logits = [
-            output for x in outputs for output in x["outputs"]
-        ]  # N of image shape
+        inputs = [None] * len(preds)
+        # inputs = [
+        #     input.squeeze(0) if input.shape[0] == 1 else input
+        #     for x in outputs
+        #     for input in x["inputs"]
+        # ]  # N of image shape
         if "labels" in outputs[0]:
             loss = np.array([x["loss"] for x in outputs]).mean()
             dice_loss = np.array([x["dice_loss"] for x in outputs]).mean()
             ce_loss = np.array([x["ce_loss"] for x in outputs]).mean()
             labels = [
-                label.squeeze(0) for x in outputs for label in x["labels"]
+                label for x in outputs for label in x["labels"]
             ]  # N of image shape
 
             acc, accs, ious, dices = eval_metrics_per_img(
@@ -392,8 +388,8 @@ class SegmentationModel(pl.LightningModule):
                 cur_time = datetime.datetime.today().strftime("%Y%m%d-%H%M%S")
                 with open(f"dumps/test-{cur_time}.pkl", "wb") as fout:
                     pickler = pickle.Pickler(fout)
-                    for input, logit, label in zip(inputs, logits, labels):
-                        pickler.dump({"input": input, "logit": logit, "label": label})
+                    for input, pred, label in zip(inputs, preds, labels):
+                        pickler.dump({"input": input, "pred": pred, "label": label})
 
             return loss
         else:
@@ -401,8 +397,8 @@ class SegmentationModel(pl.LightningModule):
             cur_time = datetime.datetime.today().strftime("%Y%m%d-%H%M%S")
             with open(f"dumps/test-{cur_time}.pkl", "wb") as fout:
                 pickler = pickle.Pickler(fout)
-                for input, logit in zip(inputs, logits):
-                    pickler.dump({"input": input, "logit": logit})
+                for input, pred in zip(inputs, preds):
+                    pickler.dump({"input": input, "pred": pred})
 
     def configure_optimizers(self):
         "Prepare optimizer and schedule (linear warmup and decay)"
