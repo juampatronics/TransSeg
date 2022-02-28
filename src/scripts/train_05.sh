@@ -2,7 +2,7 @@
 
 #SBATCH --job-name=msd
 #SBATCH --cpus-per-task=16
-#SBATCH --mem-per-cpu=3gb
+#SBATCH --mem-per-cpu=2gb
 #SBATCH --partition=pasteur
 #SBATCH --gres=gpu:4
 #SBATCH --time=24:00:00
@@ -17,6 +17,6 @@ python main.py \
   --in_channels 2 \
   --out_channels 3 \
   --max_steps 25000 \
-  --train_batch_size 2 \
-  --eval_batch_size 2 \
-  --accumulate_grad_batches 4
+  --train_batch_size 4 \
+  --eval_batch_size 4 \
+  --accumulate_grad_batches 2
