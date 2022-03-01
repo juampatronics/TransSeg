@@ -268,59 +268,59 @@ def mean_dice(
     return all_acc, acc, dice
 
 
-# def eval_metrics(
-#     results,
-#     gt_seg_maps,
-#     num_classes,
-#     ignore_index=255,
-#     metrics=["mIoU"],
-#     nan_to_num=None,
-#     label_map=dict(),
-#     reduce_zero_label=False,
-# ):
-#     """Calculate evaluation metrics
-#     Args:
-#         results (list[ndarray]): List of prediction segmentation maps.
-#         gt_seg_maps (list[ndarray]): list of ground truth segmentation maps.
-#         num_classes (int): Number of categories.
-#         ignore_index (int): Index that will be ignored in evaluation.
-#         metrics (list[str] | str): Metrics to be evaluated, 'mIoU' and 'mDice'.
-#         nan_to_num (int, optional): If specified, NaN values will be replaced
-#             by the numbers defined by the user. Default: None.
-#         label_map (dict): Mapping old labels to new labels. Default: dict().
-#         reduce_zero_label (bool): Wether ignore zero label. Default: False.
-#      Returns:
-#          float: Overall accuracy on all images.
-#          ndarray: Per category accuracy, shape (num_classes, ).
-#          ndarray: Per category evalution metrics, shape (num_classes, ).
-#     """
+def eval_metrics(
+    results,
+    gt_seg_maps,
+    num_classes,
+    ignore_index=255,
+    metrics=["mIoU"],
+    nan_to_num=None,
+    label_map=dict(),
+    reduce_zero_label=False,
+):
+    """Calculate evaluation metrics
+    Args:
+        results (list[ndarray]): List of prediction segmentation maps.
+        gt_seg_maps (list[ndarray]): list of ground truth segmentation maps.
+        num_classes (int): Number of categories.
+        ignore_index (int): Index that will be ignored in evaluation.
+        metrics (list[str] | str): Metrics to be evaluated, 'mIoU' and 'mDice'.
+        nan_to_num (int, optional): If specified, NaN values will be replaced
+            by the numbers defined by the user. Default: None.
+        label_map (dict): Mapping old labels to new labels. Default: dict().
+        reduce_zero_label (bool): Wether ignore zero label. Default: False.
+     Returns:
+         float: Overall accuracy on all images.
+         ndarray: Per category accuracy, shape (num_classes, ).
+         ndarray: Per category evalution metrics, shape (num_classes, ).
+    """
 
-#     if isinstance(metrics, str):
-#         metrics = [metrics]
-#     allowed_metrics = ["mIoU", "mDice"]
-#     if not set(metrics).issubset(set(allowed_metrics)):
-#         raise KeyError("metrics {} is not supported".format(metrics))
-#     (
-#         total_area_intersect,
-#         total_area_union,
-#         total_area_pred_label,
-#         total_area_label,
-#     ) = total_intersect_and_union(
-#         results, gt_seg_maps, num_classes, ignore_index, label_map, reduce_zero_label
-#     )
-#     all_acc = total_area_intersect.sum() / total_area_label.sum()
-#     acc = total_area_intersect / total_area_label
-#     ret_metrics = [all_acc, acc]
-#     for metric in metrics:
-#         if metric == "mIoU":
-#             iou = total_area_intersect / total_area_union
-#             ret_metrics.append(iou)
-#         elif metric == "mDice":
-#             dice = 2 * total_area_intersect / (total_area_pred_label + total_area_label)
-#             ret_metrics.append(dice)
-#     if nan_to_num is not None:
-#         ret_metrics = [np.nan_to_num(metric, nan=nan_to_num) for metric in ret_metrics]
-#     return ret_metrics
+    if isinstance(metrics, str):
+        metrics = [metrics]
+    allowed_metrics = ["mIoU", "mDice"]
+    if not set(metrics).issubset(set(allowed_metrics)):
+        raise KeyError("metrics {} is not supported".format(metrics))
+    (
+        total_area_intersect,
+        total_area_union,
+        total_area_pred_label,
+        total_area_label,
+    ) = total_intersect_and_union(
+        results, gt_seg_maps, num_classes, ignore_index, label_map, reduce_zero_label
+    )
+    all_acc = total_area_intersect.sum() / total_area_label.sum()
+    acc = total_area_intersect / total_area_label
+    ret_metrics = [all_acc, acc]
+    for metric in metrics:
+        if metric == "mIoU":
+            iou = total_area_intersect / total_area_union
+            ret_metrics.append(iou)
+        elif metric == "mDice":
+            dice = 2 * total_area_intersect / (total_area_pred_label + total_area_label)
+            ret_metrics.append(dice)
+    if nan_to_num is not None:
+        ret_metrics = [np.nan_to_num(metric, nan=nan_to_num) for metric in ret_metrics]
+    return ret_metrics
 
 
 def eval_metrics_per_img(

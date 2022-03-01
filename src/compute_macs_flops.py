@@ -7,6 +7,9 @@ from data import NIIDataLoader
 from model import SegmentationModel
 import utils
 
+import torch
+from torchprofile import profile_macs
+
 
 def parse_args(args=None):
     parser = ArgumentParser()
@@ -63,22 +66,22 @@ def parse_args(args=None):
 
 
 def train(args):
-    wandb_logger = pl.loggers.WandbLogger(
-        project="MedicalSegmentation", config=vars(args), log_model=False
-    )
+    # wandb_logger = pl.loggers.WandbLogger(
+    #     project="MedicalSegmentation", config=vars(args), log_model=False
+    # )
 
     pl.seed_everything(args.seed)
 
-    dm = NIIDataLoader(
-        data_dir=args.data_dir,
-        split_json=args.split_json,
-        img_size=args.img_size,
-        in_channels=args.in_channels,
-        clip_range=args.clip_range,
-        mean_std=args.mean_std,
-        train_batch_size=args.train_batch_size,
-        eval_batch_size=args.eval_batch_size,
-    )
+    # dm = NIIDataLoader(
+    #     data_dir=args.data_dir,
+    #     split_json=args.split_json,
+    #     img_size=args.img_size,
+    #     in_channels=args.in_channels,
+    #     clip_range=args.clip_range,
+    #     mean_std=args.mean_std,
+    #     train_batch_size=args.train_batch_size,
+    #     eval_batch_size=args.eval_batch_size,
+    # )
     if args.model_path is None:
         model = SegmentationModel(
             force_2d=args.force_2d,
@@ -97,68 +100,72 @@ def train(args):
             warmup_steps=args.warmup_steps,
             max_steps=args.max_steps,
         )
-    else:
-        model = SegmentationModel.load_from_checkpoint(args.model_path)
+        model.eval()
+        inputs = torch.randn(1, 1, 512, 512, 1)
+        macs = profile_macs(model, inputs)
+        print("MACS:", macs)
+    # else:
+    #     model = SegmentationModel.load_from_checkpoint(args.model_path)
 
-    checkpoint_callback = pl.callbacks.ModelCheckpoint(
-        save_top_k=1, monitor="val/mdice", mode="max"
-    )
-    lr_monitor = pl.callbacks.LearningRateMonitor(logging_interval="step")
+    # checkpoint_callback = pl.callbacks.ModelCheckpoint(
+    #     save_top_k=1, monitor="val/mdice", mode="max"
+    # )
+    # lr_monitor = pl.callbacks.LearningRateMonitor(logging_interval="step")
 
-    trainer = pl.Trainer(
-        default_root_dir=args.default_root_dir,
-        gpus=args.gpus,
-        val_check_interval=args.val_check_interval,
-        # check_val_every_n_epoch=args.check_val_every_n_epoch,
-        max_steps=args.max_steps,
-        gradient_clip_val=args.gradient_clip_val,
-        accumulate_grad_batches=args.accumulate_grad_batches,
-        log_every_n_steps=args.log_every_n_steps,
-        precision=args.precision,
-        callbacks=[checkpoint_callback, lr_monitor],
-        accelerator=args.accelerator,
-        logger=wandb_logger,
-        # limit_train_batches=5, # TODO: uncomment for debugging
-        # limit_val_batches=1, # TODO: uncomment for debugging
-    )
-    trainer.fit(model, datamodule=dm)
-    trainer.validate(datamodule=dm)
-    trainer.test(datamodule=dm)
+    # trainer = pl.Trainer(
+    #     default_root_dir=args.default_root_dir,
+    #     gpus=args.gpus,
+    #     val_check_interval=args.val_check_interval,
+    #     # check_val_every_n_epoch=args.check_val_every_n_epoch,
+    #     max_steps=args.max_steps,
+    #     gradient_clip_val=args.gradient_clip_val,
+    #     accumulate_grad_batches=args.accumulate_grad_batches,
+    #     log_every_n_steps=args.log_every_n_steps,
+    #     precision=args.precision,
+    #     callbacks=[checkpoint_callback, lr_monitor],
+    #     accelerator=args.accelerator,
+    #     logger=wandb_logger,
+    #     # limit_train_batches=5, # TODO: uncomment for debugging
+    #     # limit_val_batches=1, # TODO: uncomment for debugging
+    # )
+    # trainer.fit(model, datamodule=dm)
+    # trainer.validate(datamodule=dm)
+    # trainer.test(datamodule=dm)
 
 
-def evaluate(args):
-    wandb_logger = pl.loggers.WandbLogger(
-        project="MedicalSegmentation", config=vars(args), log_model=False
-    )
+# def evaluate(args):
+    # wandb_logger = pl.loggers.WandbLogger(
+    #     project="MedicalSegmentation", config=vars(args), log_model=False
+    # )
 
-    pl.seed_everything(args.seed)
+    # pl.seed_everything(args.seed)
 
-    dm = NIIDataLoader(
-        data_dir=args.data_dir,
-        split_json=args.split_json,
-        img_size=args.img_size,
-        in_channels=args.in_channels,
-        clip_range=args.clip_range,
-        mean_std=args.mean_std,
-        train_batch_size=args.train_batch_size,
-        eval_batch_size=args.eval_batch_size,
-    )
+    # dm = NIIDataLoader(
+    #     data_dir=args.data_dir,
+    #     split_json=args.split_json,
+    #     img_size=args.img_size,
+    #     in_channels=args.in_channels,
+    #     clip_range=args.clip_range,
+    #     mean_std=args.mean_std,
+    #     train_batch_size=args.train_batch_size,
+    #     eval_batch_size=args.eval_batch_size,
+    # )
 
-    model = SegmentationModel.load_from_checkpoint(args.model_path)
-    model.hparams.save_preds = True
+    # model = SegmentationModel.load_from_checkpoint(args.model_path)
+    # model.hparams.save_preds = True
 
-    trainer = pl.Trainer(
-        default_root_dir=args.default_root_dir,
-        gpus=args.gpus,
-        precision=args.precision,
-        accelerator=args.accelerator,
-        logger=wandb_logger,
-        num_sanity_val_steps=-1,
-        # limit_val_batches=656, # TODO: uncomment for debugging
-        # limit_test_batches=656, # TODO: uncomment for debugging
-    )
-    trainer.validate(model, datamodule=dm)
-    trainer.test(model, datamodule=dm)
+    # trainer = pl.Trainer(
+    #     default_root_dir=args.default_root_dir,
+    #     gpus=args.gpus,
+    #     precision=args.precision,
+    #     accelerator=args.accelerator,
+    #     logger=wandb_logger,
+    #     num_sanity_val_steps=-1,
+    #     # limit_val_batches=656, # TODO: uncomment for debugging
+    #     # limit_test_batches=656, # TODO: uncomment for debugging
+    # )
+    # trainer.validate(model, datamodule=dm)
+    # trainer.test(model, datamodule=dm)
 
 
 if __name__ == "__main__":
