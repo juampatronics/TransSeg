@@ -1,11 +1,21 @@
-# Effectively Adapting Large-scale Pre-trained Vision Transformers to 3D Medical Image Segmentation
+# Weight Inflation is All You Need: Adapting Pre-trained Vision Transformers to 3D Medical Image Segmentation
 
-## Prerequisites
+[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
+[![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)](https://www.python.org/downloads/release/python-3811/)
+[![Pytorch](https://img.shields.io/badge/Pytorch-1.7-red.svg)](https://pytorch.org/get-started/previous-versions/#v171)
+[![Pytorch Lightning](https://img.shields.io/badge/PyTorch--Lightning-1.4-red.svg)](https://pytorch-lightning.readthedocs.io/en/1.4.9/)
 
-- Linux
-- Python >= 3.8
-- PyTorch >= 1.7.1
-- PyTorch Lightning >= 1.4.9
+This repo provides the PyTorch source code of our paper: 
+Weight Inflation is All You Need: Adapting Pre-trained Vision Transformers to 3D Medical Image Segmentation (MICCAI 2022 (Under Review)). 
+
+## Abstract
+
+*Recently, Transformer-based models have started to achieve state-of-the-art performances across many vision tasks, through pre-training on large-scale natural image benchmark datasets. These improvements have motivated recent works on medical image segmentation to explore Transformer-based models. However, direct use of pre-trained Transformers is non-trivial due to the dimensional difference between 2D natural images and 3D medical images. One line of works splits 3D images into 2D slices and predicts each slice independently, thereby losing depth information; another line of works modifies the Transformer architecture to support 3D inputs but randomly initialize the model at the expense of transfer learning. In this work, we investigate the effectiveness of transfer learning from different pre-training sources and objectives, and present a simple yet effective weight inflation strategy to adapt pre-trained Transformers from 2D to 3D to exploit the depth information. Our best practice achieves consistent improvements and many state-of-the-art performances on twelve 3D medical image datasets with a few lines of code modification and less than 1% increase in computational cost.*
+
+## Approach
+
+![](./docs/figures/approach.png)
+**Figure: Approach overview. Large-scale pre-trained Transformers are used as the encoder in the segmentation model for transfer learning, in which weights are adapted using the inflation strategy to support 3D inputs. Each 3D image is split into windows, which contain a small number of neighbor slices. Each window is fed into the segmentation model and the segmentation of the center slice is predicted. All the predicted slices are aggregated to form the final 3D prediction.**
 
 ## Getting Started
 
@@ -90,6 +100,16 @@ The results are displayed at the end of evaluation and can also be found at `wan
 The predictions are saved in `dumps/` (open with `pickle.Unpickler`) .
 
 
-## ❗ Common Q&A
-
-If you have any questions, please let us know.
+## Citation
+If you use this repo in your research, please cite it as
+follows *(Under Submission)*. :
+```
+@inproceedings{
+  anonymous2022weight,
+  title={Weight Inflation is All You Need: Adapting Pre-trained Vision Transformers to 3D Medical Image Segmentation},
+  author={Anonymous},
+  booktitle={Submitted to 25th International Conference on Medical Image Computing and Computer Assisted Intervention},
+  year={2022},
+  note={under review}
+}
+```
