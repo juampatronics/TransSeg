@@ -29,7 +29,7 @@ conda env create -f environment.yml
 
 ### Dataset and Model
 
-- We use the **[BCV](https://www.synapse.org/\#!Synapse:syn3193805/wiki/217789)**, **[ACDC](https://www.creatis.insa-lyon.fr/Challenge/acdc/)**, **[MSD Spleen](https://drive.google.com/file/d/1jzeNU1EKnK81PyTsrx0ujfNl-t0Jo8uE/view?usp=sharing)**, **[MSD Brain](https://drive.google.com/file/d/1A2IU8Sgea1h3fYLpYtFb2v7NYdMjvEhU/view?usp=sharing)**, and **[MSD Hepatic Vessel](https://drive.google.com/file/d/1qVrpV7vmhIsUxFiH189LmAn0ALbAPrgS/view?usp=sharing)** dataset, please register and download these datasets.
+- We use the **[BCV](https://www.synapse.org/\#!Synapse:syn3193805/wiki/217789)**, **[ACDC](https://www.creatis.insa-lyon.fr/Challenge/acdc/)**, **[MSD](https://drive.google.com/file/d/1jzeNU1EKnK81PyTsrx0ujfNl-t0Jo8uE/view?usp=sharing)** dataset, please register and download these datasets.
 - Decompress each dataset and move it to the corresponding the `data/` folder (e.g., move **BCV** to `data/bcv30/`)
 - Run the pre-processing script *split_data_to_sliced_nii.py* in each folder to generate processed data. (e.g., **BCV** will be processed to `data/bcv30/bcv18-12-5slices/`).
 - Run the weight downloading script *download_weights.sh* in the `backbones/encoders/pretrained_models/`folder.
