@@ -60,7 +60,6 @@ class SegmentationModel(pl.LightningModule):
         self.feat_size = (img_size[0] // patch_size, img_size[1] // patch_size, 1)
 
         if encoder == "vit":
-            # TODO: broken currently
             self.encoder = ViT(
                 in_channels=in_channels,
                 img_size=img_size if not force_2d else (img_size[0], img_size[1], 1),
@@ -182,7 +181,6 @@ class SegmentationModel(pl.LightningModule):
                 channels=hidden_size, num_classes=out_channels, norm_name="instance"
             )
         elif decoder == "unetr":
-            # TODO: broken currently
             self.decoder = UnetrHead()
         else:
             raise
@@ -217,9 +215,6 @@ class SegmentationModel(pl.LightningModule):
         if self.hparams.force_2d:
             inputs = inputs[:, :, :, :, n_slices // 2 : n_slices // 2 + 1].contiguous()
         labels = labels[:, :, :, :, n_slices // 2].contiguous()
-        # print('Training...')
-        # print(inputs.shape, labels.shape)
-        # input()
         outputs = self(inputs)
         if self.modified_loss:
             loss, (dice_loss, ce_loss) = self.criterion(outputs, labels)
@@ -241,9 +236,6 @@ class SegmentationModel(pl.LightningModule):
         if self.hparams.force_2d:
             inputs = inputs[:, :, :, :, n_slices // 2 : n_slices // 2 + 1].contiguous()
         labels = labels[:, :, :, :, n_slices // 2].contiguous()
-        # print('Validation...')
-        # print(inputs.shape, labels.shape)
-        # input()
         outputs = self(inputs)
         if self.modified_loss:
             loss, (dice_loss, ce_loss) = self.criterion(outputs, labels)
@@ -257,9 +249,6 @@ class SegmentationModel(pl.LightningModule):
             "ce_loss": ce_loss.item(),
             "labels": to_list(labels.squeeze(dim=1)),
             "preds": to_list(outputs.argmax(dim=1)),
-            # "inputs": to_list(inputs)
-            # if self.hparams.force_2d
-            # else to_list(inputs[:, :, :, :, n_slices // 2]),
         }
 
     def validation_epoch_end(self, outputs):
@@ -270,23 +259,9 @@ class SegmentationModel(pl.LightningModule):
         labels = [label for x in outputs for label in x["labels"]]  # N of image shape
         preds = [pred for x in outputs for pred in x["preds"]]  # N of image shape
         inputs = [None] * len(preds)
-        # inputs = [
-        #     input.squeeze(0) if input.shape[0] == 1 else input
-        #     for x in outputs
-        #     for input in x["inputs"]
-        # ]  # N of image shape
-
-        # acc, accs, ious, dices = eval_metrics_per_img(
-        #     preds, labels, self.hparams.out_channels,
-        #     img_num_slices=get_img_num_slices("validation"),
-        #     metrics=["mIoU", "mDice"]
-        # )
         acc, accs, ious, dices = eval_metrics(
             preds, labels, self.hparams.out_channels, metrics=["mIoU", "mDice"]
         )
-        print("!!!")
-        print(dices)
-        print("!!!")
 
         result = {
             "val/loss": loss,
@@ -335,26 +310,15 @@ class SegmentationModel(pl.LightningModule):
                 "ce_loss": ce_loss.item(),
                 "labels": to_list(labels.squeeze(dim=1)),
                 "preds": to_list(outputs.argmax(dim=1)),
-                # "inputs": to_list(inputs)
-                # if self.hparams.force_2d
-                # else to_list(inputs[:, :, :, :, n_slices // 2]),
             }
         else:
             return {
                 "preds": to_list(outputs.argmax(dim=1)),
-                # "inputs": to_list(inputs)
-                # if self.hparams.force_2d
-                # else to_list(inputs[:, :, :, :, n_slices // 2]),
             }
 
     def test_epoch_end(self, outputs):
         preds = [pred for x in outputs for pred in x["preds"]]  # N of image shape
         inputs = [None] * len(preds)
-        # inputs = [
-        #     input.squeeze(0) if input.shape[0] == 1 else input
-        #     for x in outputs
-        #     for input in x["inputs"]
-        # ]  # N of image shape
         if "labels" in outputs[0]:
             loss = np.array([x["loss"] for x in outputs]).mean()
             dice_loss = np.array([x["dice_loss"] for x in outputs]).mean()
@@ -362,18 +326,9 @@ class SegmentationModel(pl.LightningModule):
             labels = [
                 label for x in outputs for label in x["labels"]
             ]  # N of image shape
-
-            # acc, accs, ious, dices = eval_metrics_per_img(
-            #     preds, labels, self.hparams.out_channels,
-            #     img_num_slices=get_img_num_slices("local_test"),
-            #     metrics=["mIoU", "mDice"]
-            # )
             acc, accs, ious, dices = eval_metrics(
                 preds, labels, self.hparams.out_channels, metrics=["mIoU", "mDice"]
             )
-            print("!!!")
-            print(dices)
-            print("!!!")
 
             result = {
                 "test/loss": loss,

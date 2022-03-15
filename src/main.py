@@ -14,9 +14,7 @@ def parse_args(args=None):
     parser.add_argument("--data_dir", default="jsons/", type=str)
     parser.add_argument("--split_json", default="dataset.json", type=str)
     parser.add_argument("--train_batch_size", default=1, type=int)
-    parser.add_argument(
-        "--eval_batch_size", default=1, type=int
-    )  # <TODO>: eval batch size must be 1 for UNETR 3D!
+    parser.add_argument("--eval_batch_size", default=1, type=int)
     parser.add_argument("--clip_range", default=(-175, 250), type=int, nargs="+")
     parser.add_argument("--mean_std", default=None, type=float, nargs="+")
 
@@ -116,8 +114,9 @@ def train(args):
         callbacks=[checkpoint_callback, lr_monitor],
         accelerator=args.accelerator,
         logger=wandb_logger,
-        # limit_train_batches=5, # TODO: uncomment for debugging
+        # limit_train_batches=1, # TODO: uncomment for debugging
         # limit_val_batches=1, # TODO: uncomment for debugging
+        # limit_test_batches=1, # TODO: uncomment for debugging
     )
     trainer.fit(model, datamodule=dm)
     trainer.validate(datamodule=dm)
@@ -152,8 +151,8 @@ def evaluate(args):
         accelerator=args.accelerator,
         logger=wandb_logger,
         num_sanity_val_steps=-1,
-        # limit_val_batches=656, # TODO: uncomment for debugging
-        # limit_test_batches=656, # TODO: uncomment for debugging
+        # limit_val_batches=1, # TODO: uncomment for debugging
+        # limit_test_batches=1, # TODO: uncomment for debugging
     )
     trainer.validate(model, datamodule=dm)
     trainer.test(model, datamodule=dm)

@@ -38,56 +38,6 @@ from monai.data import (
 )
 
 
-class Windowingd(MapTransform):
-    """
-    Performs windowing to the data, each window contains N slices.
-    """
-
-    def __init__(
-        self,
-        size=5,
-        keys=["image", "label"],
-        allow_missing_keys=False,
-    ) -> None:
-        """
-        Args:
-            size: number of slices within each window.
-        """
-        super().__init__(keys, allow_missing_keys)
-        assert size % 2 == 1
-        self.size = size
-        self.pad = size // 2
-
-    def __call__(self, data):
-
-        padded_data = {}
-        for key in self.keys:
-            assert len(data[key].shape) == 4
-            padded_data[key] = np.zeros(
-                (
-                    data[key].shape[0],
-                    data[key].shape[1],
-                    data[key].shape[2],
-                    data[key].shape[3] + self.pad * 2,
-                )
-            ).astype(data[key].dtype)
-            padded_data[key][..., self.pad : -self.pad] = data[key]
-            for i in range(self.pad):
-                padded_data[key][..., i] = data[key][..., 0]
-            for i in range(self.pad):
-                padded_data[key][..., -i - 1] = data[key][..., -1]
-
-        ret = []
-        n_slices = data[self.keys[0]].shape[-1]
-        for i in range(n_slices):
-            window_new = copy.deepcopy(data)
-            for key in self.keys:
-                window_new[key] = padded_data[key][..., i : i + self.size]
-            ret.append(window_new)
-
-        return ret
-
-
 class NIIDataLoader(pl.LightningDataModule):
     def __init__(
         self,
@@ -110,11 +60,7 @@ class NIIDataLoader(pl.LightningDataModule):
         self.train_batch_size = train_batch_size
         self.eval_batch_size = eval_batch_size
 
-        (
-            self.train_transforms,
-            self.val_transforms,
-            self.test_transforms,
-        ) = self.create_transforms()
+        self.train_transforms, self.val_transforms = self.create_transforms()
 
     def create_transforms(self):
         train_transforms = Compose(
@@ -128,7 +74,6 @@ class NIIDataLoader(pl.LightningDataModule):
                     spatial_size=self.img_size,
                     mode=["area", "nearest"],
                 ),
-                # Windowingd(keys=["image", "label"], size=5),
                 RandZoomd(
                     keys=["image", "label"],
                     min_zoom=0.5,
@@ -140,12 +85,6 @@ class NIIDataLoader(pl.LightningDataModule):
                 RandSpatialCropd(
                     keys=["image", "label"], roi_size=self.img_size, random_size=False
                 ),
-                # Spacingd(
-                #     keys=["image", "label"],
-                #     pixdim=(1.5, 1.5, 2.0),
-                #     mode=("bilinear", "nearest"),
-                # ),
-                # Orientationd(keys=["image", "label"], axcodes="RAS"),
                 ScaleIntensityRanged(
                     keys=["image"],
                     a_min=self.clip_range[0],
@@ -161,22 +100,6 @@ class NIIDataLoader(pl.LightningDataModule):
                     nonzero=False,
                     channel_wise=True,
                 ),
-                # CropForegroundd(keys=["image", "label"], source_key="image"),
-                # RandSpatialCropSamplesd(
-                #     keys=["image", "label"],
-                #     roi_size=(96, 96, 96),
-                #     num_samples=4,
-                #     random_size=False),
-                # RandCropByPosNegLabeld(
-                #     keys=["image", "label"],
-                #     label_key="label",
-                #     spatial_size=(96, 96, 96),
-                #     pos=1,
-                #     neg=1,
-                #     num_samples=4,
-                #     image_key="image",
-                #     image_threshold=0,
-                # ),
                 RandFlipd(
                     keys=["image", "label"],
                     spatial_axis=[0],
@@ -217,13 +140,6 @@ class NIIDataLoader(pl.LightningDataModule):
                     spatial_size=self.img_size,
                     mode=["area", "nearest"],
                 ),
-                # Windowingd(keys=["image", "label"], size=5),
-                # Spacingd(
-                #     keys=["image", "label"],
-                #     pixdim=(1.5, 1.5, 2.0),
-                #     mode=("bilinear", "nearest"),
-                # ),
-                # Orientationd(keys=["image", "label"], axcodes="RAS"),
                 ScaleIntensityRanged(
                     keys=["image"],
                     a_min=self.clip_range[0],
@@ -239,41 +155,10 @@ class NIIDataLoader(pl.LightningDataModule):
                     nonzero=False,
                     channel_wise=True,
                 ),
-                # CropForegroundd(keys=["image", "label"], source_key="image"),
                 ToTensord(keys=["image", "label"]),
             ]
         )
-        test_transforms = Compose(
-            [
-                LoadImaged(keys=["image"]),
-                AddChanneld(keys=["image"]),
-                # Windowingd(keys=["image", "label"], size=5),
-                ScaleIntensityRanged(
-                    keys=["image"],
-                    a_min=self.clip_range[0],
-                    a_max=self.clip_range[1],
-                    b_min=0.0,
-                    b_max=1.0,
-                    clip=True,
-                ),
-                ToTensord(keys=["image"]),
-            ]
-            if self.in_channels == 1
-            else [
-                LoadImaged(keys=["image"]),
-                # Windowingd(keys=["image"], size=5),
-                ScaleIntensityRanged(
-                    keys=["image"],
-                    a_min=self.clip_range[0],
-                    a_max=self.clip_range[1],
-                    b_min=0.0,
-                    b_max=1.0,
-                    clip=True,
-                ),
-                ToTensord(keys=["image"]),
-            ]
-        )
-        return train_transforms, val_transforms, test_transforms
+        return train_transforms, val_transforms
 
     def setup(self, stage=None):
         data_config_file = f"{self.data_dir}/{self.split_json}"
@@ -303,10 +188,7 @@ class NIIDataLoader(pl.LightningDataModule):
             data=val_files, transform=self.val_transforms, num_workers=3, cache_num=64
         )
         self.test_ds = CacheDataset(
-            data=test_files,
-            transform=self.val_transforms,  # set to test_transforms when submitting leaderboard
-            num_workers=3,
-            cache_num=64,
+            data=test_files, transform=self.val_transforms, num_workers=3, cache_num=64
         )
         print(
             f"# Train: {len(self.train_ds)}, # Val: {len(self.val_ds)}, # Test: {len(self.test_ds)}..."
