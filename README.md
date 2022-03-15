@@ -91,6 +91,16 @@ Results are displayed at the end of evaluation and can also be found at `wandb/`
 
 The predictions are saved in `dumps/` (open with `pickle.Unpickler`) .
 
+### Compute FLOPS
+
+To compute the FLOPS of the vanilla Transformer and inflated Transformer, simply run:
+
+```bash
+cd src/
+python compute_flops.py
+```
+
+Should get `2D FLOPS: 213343401984` and `3D FLOPS: 214954014720`, which indicates there is little increased computational cost of our method.
 
 ## Citation
 If you use this repo in your research, please cite it as
