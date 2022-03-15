@@ -286,9 +286,12 @@ class NIIDataLoader(pl.LightningDataModule):
         val_files = load_decathlon_datalist(
             data_config_file, data_list_key="validation"
         )
-        test_files = load_decathlon_datalist(
-            data_config_file, data_list_key="local_test"
-        )
+        if "local_test" in data_config:
+            test_files = load_decathlon_datalist(
+                data_config_file, data_list_key="local_test"
+            )
+        else:
+            test_files = []
 
         self.train_ds = CacheDataset(
             data=train_files,
