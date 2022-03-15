@@ -22,7 +22,11 @@ def process(filename, inputdir):
     filename_noext = filename["image"].split("/")[-1].replace(".nii.gz", "")
 
     img = nib.load(f"{inputdir}/{filename['image']}").get_fdata()
-    label = nib.load(f"{inputdir}/{filename['label']}").get_fdata() if filename["label"] is not None else None
+    label = (
+        nib.load(f"{inputdir}/{filename['label']}").get_fdata()
+        if filename["label"] is not None
+        else None
+    )
     n_dim = len(img.shape)
     assert n_dim in [3, 4]
     n_slices = img.shape[-1] if n_dim == 3 else img.shape[-2]
@@ -33,7 +37,9 @@ def process(filename, inputdir):
         img.shape,
         label.shape if label is not None else "-",
         (img.mean(), img.std(), img.min(), img.max()),
-        (label.mean(), label.std(), label.min(), label.max()) if label is not None else "-",
+        (label.mean(), label.std(), label.min(), label.max())
+        if label is not None
+        else "-",
     )
 
     if n_dim == 4:
@@ -93,15 +99,32 @@ def process_metadata(filename, inputdir, json_metadata):
 def main():
     random.seed(1234)
 
-    for inputdir in sorted(['Task01_BrainTumour', 'Task03_Liver', 'Task05_Prostate', 'Task07_Pancreas', 'Task09_Spleen', 'Task02_Heart', 'Task04_Hippocampus', 'Task06_Lung', 'Task08_HepaticVessel', 'Task10_Colon']):
+    for inputdir in sorted(
+        [
+            "Task01_BrainTumour",
+            "Task03_Liver",
+            "Task05_Prostate",
+            "Task07_Pancreas",
+            "Task09_Spleen",
+            "Task02_Heart",
+            "Task04_Hippocampus",
+            "Task06_Lung",
+            "Task08_HepaticVessel",
+            "Task10_Colon",
+        ]
+    ):
         dataset = json.load(open(f"{inputdir}/dataset.json"))
 
         all_filenames = dataset["training"]
         random.shuffle(all_filenames)
         train_filenames = all_filenames[: int(0.8 * len(all_filenames))]
-        val_filenames = all_filenames[int(0.8 * len(all_filenames)) : int(0.95 * len(all_filenames))]
+        val_filenames = all_filenames[
+            int(0.8 * len(all_filenames)) : int(0.95 * len(all_filenames))
+        ]
         test_filenames = all_filenames[int(0.95 * len(all_filenames)) :]
-        leaderboard_filenames = [{"image": image, "label": None} for image in dataset["test"]]
+        leaderboard_filenames = [
+            {"image": image, "label": None} for image in dataset["test"]
+        ]
 
         # add split information
         for filename in train_filenames:
@@ -136,9 +159,10 @@ def main():
             print(filename)
             process_metadata(filename, inputdir, json_metadata)
         json_metadata["labels"] = dataset["labels"]
-        json.dump(json_metadata, open(f"processed/{inputdir}/dataset_5slices.json", "w"))
+        json.dump(
+            json_metadata, open(f"processed/{inputdir}/dataset_5slices.json", "w")
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-
