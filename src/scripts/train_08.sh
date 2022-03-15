@@ -13,8 +13,7 @@ python main.py \
   --data_dir /sailhome/yuhuiz/develop/data/MedicalImages/msd/processed/Task08_HepaticVessel/   \
   --split_json dataset_5slices.json \
   --img_size 512 512 5 \
-  --clip_range -1 231 \
-  --mean_std 86.50 46.06 \
+  --clip_range -175 250 \
   --in_channels 1 \
   --out_channels 3 \
   --max_steps 25000 \

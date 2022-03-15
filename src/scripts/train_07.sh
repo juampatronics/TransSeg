@@ -13,8 +13,7 @@ python main.py \
   --data_dir /sailhome/yuhuiz/develop/data/MedicalImages/msd/processed/Task07_Pancreas/   \
   --split_json dataset_5slices.json \
   --img_size 512 512 5 \
-  --clip_range -106 250 \
-  --mean_std 69.75 92.78 \
+  --clip_range -175 250 \
   --in_channels 1 \
   --out_channels 3 \
   --max_steps 25000 \

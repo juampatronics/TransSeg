@@ -13,8 +13,7 @@ python main.py \
   --data_dir /sailhome/yuhuiz/develop/data/MedicalImages/msd/processed/Task09_Spleen/   \
   --split_json dataset_5slices.json \
   --img_size 512 512 5 \
-  --clip_range -41 176 \
-  --mean_std 104.90 38.06 \
+  --clip_range -175 250 \
   --in_channels 1 \
   --out_channels 2 \
   --max_steps 25000 \
