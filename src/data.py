@@ -123,7 +123,11 @@ class NIIDataLoader(pl.LightningDataModule):
                 AddChanneld(keys=["image", "label"])
                 if self.in_channels == 1
                 else AddChanneld(keys=["label"]),
-                Resized(keys=["image", "label"], spatial_size=self.img_size, mode=['area', 'nearest']),
+                Resized(
+                    keys=["image", "label"],
+                    spatial_size=self.img_size,
+                    mode=["area", "nearest"],
+                ),
                 # Windowingd(keys=["image", "label"], size=5),
                 RandZoomd(
                     keys=["image", "label"],
@@ -154,8 +158,8 @@ class NIIDataLoader(pl.LightningDataModule):
                     keys=["image"],
                     subtrahend=None if self.mean_std is None else [self.mean_std[0]],
                     divisor=None if self.mean_std is None else [self.mean_std[1]],
-                    nonzero=False, 
-                    channel_wise=True
+                    nonzero=False,
+                    channel_wise=True,
                 ),
                 # CropForegroundd(keys=["image", "label"], source_key="image"),
                 # RandSpatialCropSamplesd(
@@ -208,7 +212,11 @@ class NIIDataLoader(pl.LightningDataModule):
                 AddChanneld(keys=["image", "label"])
                 if self.in_channels == 1
                 else AddChanneld(keys=["label"]),
-                Resized(keys=["image", "label"], spatial_size=self.img_size, mode=['area', 'nearest']),
+                Resized(
+                    keys=["image", "label"],
+                    spatial_size=self.img_size,
+                    mode=["area", "nearest"],
+                ),
                 # Windowingd(keys=["image", "label"], size=5),
                 # Spacingd(
                 #     keys=["image", "label"],
@@ -228,8 +236,8 @@ class NIIDataLoader(pl.LightningDataModule):
                     keys=["image"],
                     subtrahend=None if self.mean_std is None else [self.mean_std[0]],
                     divisor=None if self.mean_std is None else [self.mean_std[1]],
-                    nonzero=False, 
-                    channel_wise=True
+                    nonzero=False,
+                    channel_wise=True,
                 ),
                 # CropForegroundd(keys=["image", "label"], source_key="image"),
                 ToTensord(keys=["image", "label"]),
@@ -272,9 +280,15 @@ class NIIDataLoader(pl.LightningDataModule):
         data_config = json.load(open(data_config_file))
         print(f"Loading data config from {data_config_file}...")
 
-        train_files = load_decathlon_datalist(data_config_file, data_list_key="training")
-        val_files = load_decathlon_datalist(data_config_file, data_list_key="validation")
-        test_files = load_decathlon_datalist(data_config_file, data_list_key="local_test")
+        train_files = load_decathlon_datalist(
+            data_config_file, data_list_key="training"
+        )
+        val_files = load_decathlon_datalist(
+            data_config_file, data_list_key="validation"
+        )
+        test_files = load_decathlon_datalist(
+            data_config_file, data_list_key="local_test"
+        )
 
         self.train_ds = CacheDataset(
             data=train_files,
@@ -283,16 +297,13 @@ class NIIDataLoader(pl.LightningDataModule):
             cache_num=64,
         )
         self.val_ds = CacheDataset(
-            data=val_files, 
-            transform=self.val_transforms, 
-            num_workers=3, 
-            cache_num=64
+            data=val_files, transform=self.val_transforms, num_workers=3, cache_num=64
         )
         self.test_ds = CacheDataset(
             data=test_files,
-            transform=self.val_transforms, # set to test_transforms when submitting leaderboard
+            transform=self.val_transforms,  # set to test_transforms when submitting leaderboard
             num_workers=3,
-            cache_num=64
+            cache_num=64,
         )
         print(
             f"# Train: {len(self.train_ds)}, # Val: {len(self.val_ds)}, # Test: {len(self.test_ds)}..."

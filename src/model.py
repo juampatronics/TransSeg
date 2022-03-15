@@ -6,7 +6,13 @@ import numpy as np
 import pytorch_lightning as pl
 import datetime
 import pickle
-from utils import eval_metrics, eval_metrics_per_img, get_img_num_slices, to_list, get_linear_schedule_with_warmup
+from utils import (
+    eval_metrics,
+    eval_metrics_per_img,
+    get_img_num_slices,
+    to_list,
+    get_linear_schedule_with_warmup,
+)
 
 from monai.losses import DiceCELoss, DiceFocalLoss
 from monai.networks.nets.vit import ViT
@@ -261,12 +267,8 @@ class SegmentationModel(pl.LightningModule):
         dice_loss = np.array([x["dice_loss"] for x in outputs]).mean()
         ce_loss = np.array([x["ce_loss"] for x in outputs]).mean()
 
-        labels = [
-            label for x in outputs for label in x["labels"]
-        ]  # N of image shape
-        preds = [
-            pred for x in outputs for pred in x["preds"]
-        ]  # N of image shape
+        labels = [label for x in outputs for label in x["labels"]]  # N of image shape
+        preds = [pred for x in outputs for pred in x["preds"]]  # N of image shape
         inputs = [None] * len(preds)
         # inputs = [
         #     input.squeeze(0) if input.shape[0] == 1 else input
@@ -275,13 +277,12 @@ class SegmentationModel(pl.LightningModule):
         # ]  # N of image shape
 
         # acc, accs, ious, dices = eval_metrics_per_img(
-        #     preds, labels, self.hparams.out_channels, 
+        #     preds, labels, self.hparams.out_channels,
         #     img_num_slices=get_img_num_slices("validation"),
         #     metrics=["mIoU", "mDice"]
         # )
         acc, accs, ious, dices = eval_metrics(
-            preds, labels, self.hparams.out_channels, 
-            metrics=["mIoU", "mDice"]
+            preds, labels, self.hparams.out_channels, metrics=["mIoU", "mDice"]
         )
         print("!!!")
         print(dices)
@@ -347,9 +348,7 @@ class SegmentationModel(pl.LightningModule):
             }
 
     def test_epoch_end(self, outputs):
-        preds = [
-            pred for x in outputs for pred in x["preds"]
-        ]  # N of image shape
+        preds = [pred for x in outputs for pred in x["preds"]]  # N of image shape
         inputs = [None] * len(preds)
         # inputs = [
         #     input.squeeze(0) if input.shape[0] == 1 else input
@@ -365,13 +364,12 @@ class SegmentationModel(pl.LightningModule):
             ]  # N of image shape
 
             # acc, accs, ious, dices = eval_metrics_per_img(
-            #     preds, labels, self.hparams.out_channels, 
+            #     preds, labels, self.hparams.out_channels,
             #     img_num_slices=get_img_num_slices("local_test"),
             #     metrics=["mIoU", "mDice"]
             # )
             acc, accs, ious, dices = eval_metrics(
-                preds, labels, self.hparams.out_channels, 
-                metrics=["mIoU", "mDice"]
+                preds, labels, self.hparams.out_channels, metrics=["mIoU", "mDice"]
             )
             print("!!!")
             print(dices)

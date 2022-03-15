@@ -19,12 +19,17 @@ def load_img_num_slices(data_dir, split_json):
 
     IMG_NUM_SLICES = dict()
 
-    data_config = json.load(open(f'{data_dir}/{split_json}'))
+    data_config = json.load(open(f"{data_dir}/{split_json}"))
     for split in ["validation", "local_test"]:
 
         img_id_to_num_slices = OrderedDict()
         for img_config in data_config[split]:
-            img_id, slice_id = img_config['label'].split('/')[-1].replace('.nii.gz', '').split('_')[1:3]
+            img_id, slice_id = (
+                img_config["label"]
+                .split("/")[-1]
+                .replace(".nii.gz", "")
+                .split("_")[1:3]
+            )
             img_id, slice_id = int(img_id), int(slice_id)
             if img_id not in img_id_to_num_slices:
                 img_id_to_num_slices[img_id] = 0
@@ -359,7 +364,8 @@ def eval_metrics_per_img(
     if sum(img_num_slices) != len(results):
         raise ValueError(
             "Total number of image slices must be equal to results."
-            f"Got {sum(img_num_slices)} != {len(results)}.")
+            f"Got {sum(img_num_slices)} != {len(results)}."
+        )
 
     ret_all_acc = []
     ret_acc = []
@@ -369,29 +375,34 @@ def eval_metrics_per_img(
     idx_start = 0
     for num_slices in img_num_slices:
         idx_end = idx_start + num_slices
-        img_results = results[idx_start : idx_end]
-        img_gt_seg_maps = gt_seg_maps[idx_start : idx_end]
+        img_results = results[idx_start:idx_end]
+        img_gt_seg_maps = gt_seg_maps[idx_start:idx_end]
         (
             img_area_intersect,
             img_area_union,
             img_area_pred_label,
             img_area_label,
         ) = total_intersect_and_union(
-            img_results, img_gt_seg_maps, num_classes, ignore_index, label_map, reduce_zero_label
+            img_results,
+            img_gt_seg_maps,
+            num_classes,
+            ignore_index,
+            label_map,
+            reduce_zero_label,
         )
         img_all_acc = img_area_intersect.sum() / img_area_label.sum()
         img_acc = img_area_intersect / img_area_label
         img_iou = img_area_intersect / img_area_union
         img_dice = 2 * img_area_intersect / (img_area_pred_label + img_area_label)
-        
+
         ret_all_acc.append(img_all_acc)
         ret_acc.append(img_acc)
         ret_iou.append(img_iou)
         ret_dice.append(img_dice)
 
         idx_start = idx_end
-    
-    # If an image has NaN metric, then skip it in the global mean. 
+
+    # If an image has NaN metric, then skip it in the global mean.
     ret_metrics = [np.nanmean(ret_all_acc), np.nanmean(ret_acc, axis=0)]
     for metric in metrics:
         if metric == "mIoU":
@@ -408,11 +419,14 @@ if __name__ == "__main__":
     gt_seg_maps = [np.ones((3, 3)), np.ones((3, 3))]
     num_classes = 5
     img_num_slices = [1, 1]
-    metrics = eval_metrics_per_img(results, gt_seg_maps, num_classes, img_num_slices, metrics=["mIoU", "mDice"])
+    metrics = eval_metrics_per_img(
+        results, gt_seg_maps, num_classes, img_num_slices, metrics=["mIoU", "mDice"]
+    )
     # metrics = eval_metrics(results, gt_seg_maps, num_classes, metrics=["mIoU", "mDice"])
     print(metrics)
     load_img_num_slices(
         data_dir="data/msd/processed/Task07_Pancreas/",
-        split_json="dataset_5slices.json")
+        split_json="dataset_5slices.json",
+    )
     print(get_img_num_slices("validation"))
     print(get_img_num_slices("local_test"))
