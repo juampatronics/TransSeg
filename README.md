@@ -31,7 +31,7 @@ conda env create -f environment.yml
 
 - We use the **[BCV](https://www.synapse.org/\#!Synapse:syn3193805/wiki/217789)**, **[ACDC](https://www.creatis.insa-lyon.fr/Challenge/acdc/)**, **[MSD](https://drive.google.com/file/d/1jzeNU1EKnK81PyTsrx0ujfNl-t0Jo8uE/view?usp=sharing)** dataset, please register and download these datasets.
 - Decompress each dataset and move it to the corresponding the `src/data/` folder (e.g., move **BCV** to `src/data/bcv/`)
-- Run the pre-processing script *split_data_to_sliced_nii.py* in each folder to generate processed data. (e.g., **BCV** will be processed to `src/data/bcv/processed/`).
+- Run the pre-processing script *split_data_to_slices_nii.py* in each folder to generate processed data. (e.g., **BCV** will be processed to `src/data/bcv/processed/`).
 - Run the weight downloading script *download_weights.sh* in the `src/backbones/encoders/pretrained_models/`folder.
 
 ### Training
