@@ -5,7 +5,6 @@ from argparse import ArgumentParser
 import pytorch_lightning as pl
 from data import NIIDataLoader
 from model import SegmentationModel
-import utils
 
 
 def parse_args(args=None):
@@ -58,7 +57,6 @@ def parse_args(args=None):
     parser.add_argument("--model_path", default=None, type=str)
 
     args = parser.parse_args(args)
-    utils.load_img_num_slices(args.data_dir, args.split_json)
     return args
 
 
