@@ -412,7 +412,7 @@ if __name__ == "__main__":
     # metrics = eval_metrics(results, gt_seg_maps, num_classes, metrics=["mIoU", "mDice"])
     print(metrics)
     load_img_num_slices(
-        data_dir="/sailhome/yuhuiz/develop/data/MedicalImages/msd/processed/Task07_Pancreas/",
+        data_dir="data/msd/processed/Task07_Pancreas/",
         split_json="dataset_5slices.json")
     print(get_img_num_slices("validation"))
     print(get_img_num_slices("local_test"))
