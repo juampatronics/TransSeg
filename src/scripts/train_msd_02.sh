@@ -10,7 +10,7 @@
 #SBATCH --mail-type=ALL
 
 python main.py \
-  --data_dir /sailhome/yuhuiz/develop/data/MedicalImages/msd/processed/Task02_Heart/   \
+  --data_dir data/msd/processed/Task02_Heart/   \
   --split_json dataset_5slices.json \
   --img_size 320 320 5 \
   --clip_range -1000000 1000000 \

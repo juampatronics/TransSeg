@@ -10,7 +10,7 @@
 #SBATCH --mail-type=ALL
 
 python main.py \
-  --data_dir /sailhome/yuhuiz/develop/data/MedicalImages/msd/processed/Task08_HepaticVessel/   \
+  --data_dir data/msd/processed/Task08_HepaticVessel/   \
   --split_json dataset_5slices.json \
   --img_size 512 512 5 \
   --clip_range -175 250 \
