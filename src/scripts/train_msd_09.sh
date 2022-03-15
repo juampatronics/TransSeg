@@ -6,7 +6,7 @@
 #SBATCH --partition=pasteur
 #SBATCH --gres=gpu:4
 #SBATCH --time=24:00:00
-#SBATCH --output=task09_%A_%a.out
+#SBATCH --output=msd_09_%A_%a.out
 #SBATCH --mail-type=ALL
 
 python main.py \
@@ -19,4 +19,4 @@ python main.py \
   --max_steps 25000 \
   --train_batch_size 2 \
   --eval_batch_size 2 \
-  --accumulate_grad_batches 4
+  --accumulate_grad_batches 2

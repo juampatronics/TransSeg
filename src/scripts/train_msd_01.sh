@@ -4,9 +4,9 @@
 #SBATCH --cpus-per-task=16
 #SBATCH --mem-per-cpu=3gb
 #SBATCH --partition=pasteur
-#SBATCH --gres=gpu:2
+#SBATCH --gres=gpu:4
 #SBATCH --time=24:00:00
-#SBATCH --output=task01_%A_%a.out
+#SBATCH --output=msd_01_%A_%a.out
 #SBATCH --mail-type=ALL
 
 python main.py \
@@ -16,7 +16,7 @@ python main.py \
   --clip_range -1000000 1000000 \
   --in_channels 4 \
   --out_channels 4 \
-  --max_steps 25000 \
+  --max_steps 250000 \
   --train_batch_size 4 \
   --eval_batch_size 4 \
-  --accumulate_grad_batches 4
+  --accumulate_grad_batches 1
