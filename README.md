@@ -43,6 +43,8 @@ cd src/
 bash scripts/train_[dataset].sh
 ```
 
+All the hardward requirements for training such as number of GPUs, CPUs, RAMs are listed in each script.
+
 To change the dataset, modify `--data_dir`
 
 To change the different encoder, set `--encoder swint/videoswint/dino`.
