@@ -45,11 +45,11 @@ bash scripts/train_[dataset].sh
 
 All the hardward requirements for training such as number of GPUs, CPUs, RAMs are listed in each script.
 
-To change the dataset, modify `--data_dir`
-
 To change the different encoder, set `--encoder swint/videoswint/dino`.
 
-To adjust the number of training steps, set `--max_steps 250000`.
+To use your own dataset, modify `--data_dir`
+
+To adjust the number of training steps, modify `--max_steps`.
 
 2. To train the segmentation model with only transfer learning and without depth information (i.e., **Ours w/o D** in the paper), simply add `--force_2d 1` and run:
 
