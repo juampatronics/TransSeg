@@ -148,6 +148,11 @@ def load_checkpoint(
         raise
     print("New:", emb.shape, emb.sum())
     checkpoint["model"][key] = emb
+
+    # print('Remove "patch_embed" pre-trained weights!!!!')
+    # removed_keys = ["patch_embed.proj.weight", "patch_embed.proj.bias"]
+    # for key in removed_keys:
+    #     checkpoint["model"].pop(key)
     # --- ending inflate/center weights ---
 
     # OrderedDict is a subclass of dict
