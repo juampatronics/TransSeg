@@ -35,7 +35,7 @@ def ensure_dir(file_path):
     return file_path
 
 
-all_filenames = test_filenames  # train_filenames +
+all_filenames = train_filenames + test_filenames
 json_metadata = {"training": [], "local_test": []}
 for i, filename in enumerate(all_filenames):
     if filename in train_filenames:
@@ -165,4 +165,6 @@ json_metadata["labels"] = {
     "2": "myocardium",
     "3": "the left ventricular cavity",
 }
+json_metadata["validation"] = json_metadata["local_test"]
+del json_metadata["local_test"]
 json.dump(json_metadata, open(f"{outputdir}/dataset_5slices.json", "w"))
