@@ -19,4 +19,5 @@ python main.py \
   --max_steps 250000 \
   --train_batch_size 4 \
   --eval_batch_size 4 \
-  --accumulate_grad_batches 1
+  --accumulate_grad_batches 1 \
+  --force_2d 1

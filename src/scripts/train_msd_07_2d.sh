@@ -1,22 +1,23 @@
 #!/bin/bash
 
-#SBATCH --job-name=bcv
+#SBATCH --job-name=msd
 #SBATCH --cpus-per-task=32
 #SBATCH --mem-per-cpu=4gb
 #SBATCH --partition=pasteur
-#SBATCH --gres=gpu:8
-#SBATCH --time=24:00:00
-#SBATCH --output=bcv_%A_%a.out
+#SBATCH --gres=gpu:4
+#SBATCH --time=100:00:00
+#SBATCH --output=msd_07_%A_%a.out
 #SBATCH --mail-type=ALL
 
 python main.py \
-  --data_dir data/bcv/processed/ \
+  --data_dir data/msd/processed/Task07_Pancreas/   \
   --split_json dataset_5slices.json \
   --img_size 512 512 5 \
   --clip_range -175 250 \
   --in_channels 1 \
-  --out_channels 14 \
-  --max_steps 25000 \
+  --out_channels 3 \
+  --max_steps 250000 \
   --train_batch_size 2 \
   --eval_batch_size 2 \
-  --accumulate_grad_batches 1
+  --accumulate_grad_batches 2 \
+  --force_2d 1

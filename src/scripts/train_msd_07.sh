@@ -5,7 +5,7 @@
 #SBATCH --mem-per-cpu=4gb
 #SBATCH --partition=pasteur
 #SBATCH --gres=gpu:4
-#SBATCH --time=24:00:00
+#SBATCH --time=100:00:00
 #SBATCH --output=msd_07_%A_%a.out
 #SBATCH --mail-type=ALL
 
