@@ -56,7 +56,7 @@ class NIIDataLoader(pl.LightningDataModule):
         self.img_size = img_size
         self.in_channels = in_channels
         self.clip_range = clip_range
-        self.mean_std = mean_std
+        self.mean_std = mean_std # TODO: remove
         self.train_batch_size = train_batch_size
         self.eval_batch_size = eval_batch_size
 
@@ -89,17 +89,17 @@ class NIIDataLoader(pl.LightningDataModule):
                     keys=["image"],
                     a_min=self.clip_range[0],
                     a_max=self.clip_range[1],
-                    b_min=self.clip_range[0],
-                    b_max=self.clip_range[1],
+                    b_min=0.0,
+                    b_max=1.0,
                     clip=True,
                 ),
-                NormalizeIntensityd(
-                    keys=["image"],
-                    subtrahend=None if self.mean_std is None else [self.mean_std[0]],
-                    divisor=None if self.mean_std is None else [self.mean_std[1]],
-                    nonzero=False,
-                    channel_wise=True,
-                ),
+                # NormalizeIntensityd(
+                #     keys=["image"],
+                #     subtrahend=None if self.mean_std is None else [self.mean_std[0]],
+                #     divisor=None if self.mean_std is None else [self.mean_std[1]],
+                #     nonzero=False,
+                #     channel_wise=True,
+                # ),
                 RandFlipd(
                     keys=["image", "label"],
                     spatial_axis=[0],
@@ -144,17 +144,17 @@ class NIIDataLoader(pl.LightningDataModule):
                     keys=["image"],
                     a_min=self.clip_range[0],
                     a_max=self.clip_range[1],
-                    b_min=self.clip_range[0],
-                    b_max=self.clip_range[1],
+                    b_min=0.0,
+                    b_max=1.0,
                     clip=True,
                 ),
-                NormalizeIntensityd(
-                    keys=["image"],
-                    subtrahend=None if self.mean_std is None else [self.mean_std[0]],
-                    divisor=None if self.mean_std is None else [self.mean_std[1]],
-                    nonzero=False,
-                    channel_wise=True,
-                ),
+                # NormalizeIntensityd(
+                #     keys=["image"],
+                #     subtrahend=None if self.mean_std is None else [self.mean_std[0]],
+                #     divisor=None if self.mean_std is None else [self.mean_std[1]],
+                #     nonzero=False,
+                #     channel_wise=True,
+                # ),
                 ToTensord(keys=["image", "label"]),
             ]
         )
@@ -199,7 +199,7 @@ class NIIDataLoader(pl.LightningDataModule):
             self.train_ds,
             batch_size=self.train_batch_size,
             shuffle=True,
-            num_workers=4,
+            num_workers=6,
             pin_memory=True,
         )
 
@@ -208,7 +208,7 @@ class NIIDataLoader(pl.LightningDataModule):
             self.val_ds,
             batch_size=self.eval_batch_size,
             shuffle=False,
-            num_workers=4,
+            num_workers=3,
             pin_memory=True,
         )
 
@@ -217,7 +217,7 @@ class NIIDataLoader(pl.LightningDataModule):
             self.test_ds,
             batch_size=self.eval_batch_size,
             shuffle=False,
-            num_workers=4,
+            num_workers=3,
             pin_memory=True,
         )
 
