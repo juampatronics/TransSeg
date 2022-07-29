@@ -112,7 +112,6 @@ follows *(Under Submission)*. :
   anonymous2022weight,
   title={Weight Inflation is All You Need: Adapting Pre-trained Vision Transformers to 3D Medical Image Segmentation},
   author={Anonymous},
-  booktitle={Submitted to 25th International Conference on Medical Image Computing and Computer Assisted Intervention},
   year={2022},
   note={under review}
 }
