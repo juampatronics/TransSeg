@@ -6,7 +6,7 @@
 [![Pytorch Lightning](https://img.shields.io/badge/PyTorch--Lightning-1.4-red.svg)](https://pytorch-lightning.readthedocs.io/en/1.4.9/)
 
 This repo provides the PyTorch source code of our paper: 
-Weight Inflation is All You Need: Adapting Pre-trained Vision Transformers to 3D Medical Image Segmentation (MICCAI 2022 (Under Review)). 
+Weight Inflation is All You Need: Adapting Pre-trained Vision Transformers to 3D Medical Image Segmentation (Under Review). 
 
 ## Abstract
 
