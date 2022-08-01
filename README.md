@@ -1,4 +1,4 @@
-# Weight Inflation is All You Need: Adapting Pre-trained Vision Transformers to 3D Medical Image Segmentation
+# Adapting Pre-trained Vision Transformers from 2D to 3D through Weight Inflation Improves Medical Image Segmentation
 
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 [![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)](https://www.python.org/downloads/release/python-3811/)
@@ -6,11 +6,11 @@
 [![Pytorch Lightning](https://img.shields.io/badge/PyTorch--Lightning-1.4-red.svg)](https://pytorch-lightning.readthedocs.io/en/1.4.9/)
 
 This repo provides the PyTorch source code of our paper: 
-Weight Inflation is All You Need: Adapting Pre-trained Vision Transformers to 3D Medical Image Segmentation (Under Review). 
+Adapting Pre-trained Vision Transformers from 2D to 3D through Weight Inflation Improves Medical Image Segmentation (Under Review). 
 
 ## Abstract
 
-*Recently, Transformer-based models have started to achieve state-of-the-art performances across many vision tasks, through pre-training on large-scale natural image benchmark datasets. These improvements have motivated recent works on medical image segmentation to explore Transformer-based models. However, direct use of pre-trained Transformers is non-trivial due to the dimensional difference between 2D natural images and 3D medical images. One line of works splits 3D images into 2D slices and predicts each slice independently, thereby losing depth information; another line of works modifies the Transformer architecture to support 3D inputs but randomly initialize the model at the expense of transfer learning. In this work, we investigate the effectiveness of transfer learning from different pre-training sources and objectives, and present a simple yet effective weight inflation strategy to adapt pre-trained Transformers from 2D to 3D to exploit the depth information. Our best practice achieves consistent improvements and many state-of-the-art performances on twelve 3D medical image datasets with a few lines of code modification and less than 1% increase in computational cost.*
+*Given the prevalence of 3D medical imaging technologies such as MRI and CT that are widely used in diagnosing and treating diverse diseases, 3D segmentation is one of the fundamental tasks of medical image analysis. Recently, Transformer-based models have started to achieve state-of-the-art performances across many vision tasks, through pre-training on large-scale natural image benchmark datasets. While works on medical image analysis have also begun to explore Transformer-based models, there is currently no optimal strategy to effectively leverage pre-trained Transformers, primarily due to the difference in dimensionality between 2D natural images and 3D medical images. Existing solutions either split 3D images into 2D slices and predict each slice independently, thereby losing crucial depth-wise information, or modify the Transformer architecture to support 3D inputs without leveraging pre-trained weights. In this work, we use a simple yet effective weight inflation strategy to adapt pre-trained Transformers from 2D to 3D, retaining the benefit of both transfer learning and depth information. We further investigate the effectiveness of transfer from different pre-training sources and objectives. Our approach achieves state-of-the-art performances across a broad range of 3D medical image datasets, and can become a standard strategy easily utilized by all work on Transformer-based models for 3D medical images, to maximize performance. All codes are available at https://anonymous.4open.science/r/InflaFormer/.*
 
 ## Approach
 
@@ -109,8 +109,8 @@ If you use this repo in your research, please cite it as
 follows *(Under Submission)*. :
 ```
 @inproceedings{
-  anonymous2022weight,
-  title={Weight Inflation is All You Need: Adapting Pre-trained Vision Transformers to 3D Medical Image Segmentation},
+  anonymous2022adapting,
+  title={Adapting Pre-trained Vision Transformers from 2D to 3D through Weight Inflation Improves Medical Image Segmentation},
   author={Anonymous},
   year={2022},
   note={under review}
