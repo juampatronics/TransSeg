@@ -4,6 +4,8 @@ src/wandb
 src/MedicalSegmentation
 src/dumps
 src/weights
+.vscode
+src/checkpoints
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
