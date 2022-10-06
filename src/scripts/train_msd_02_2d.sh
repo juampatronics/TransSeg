@@ -13,7 +13,7 @@ python main.py \
   --data_dir data/msd/processed/Task02_Heart/   \
   --split_json dataset_5slices.json \
   --img_size 320 320 5 \
-  --clip_range -1000000 1000000 \
+  --clip_range 601 1511 \
   --in_channels 1 \
   --out_channels 2 \
   --max_steps 25000 \

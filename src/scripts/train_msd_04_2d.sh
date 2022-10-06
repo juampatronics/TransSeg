@@ -13,7 +13,7 @@ python main.py \
   --data_dir data/msd/processed/Task04_Hippocampus/   \
   --split_json dataset_5slices.json \
   --img_size 240 240 5 \
-  --clip_range -1000000 1000000 \
+  --clip_range 29 205431 \
   --in_channels 1 \
   --out_channels 3 \
   --max_steps 25000 \

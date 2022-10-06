@@ -13,7 +13,7 @@ python main.py \
   --data_dir data/msd/processed/Task05_Prostate/   \
   --split_json dataset_5slices.json \
   --img_size 320 320 5 \
-  --clip_range -1000000 1000000 \
+  --clip_range 0 2152 \
   --in_channels 2 \
   --out_channels 3 \
   --max_steps 25000 \
