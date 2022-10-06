@@ -274,6 +274,7 @@ class SegmentationModel(pl.LightningModule):
             "val/mdice_nobg": dices[1:].mean(),
         }
         if len(dices) == 14:
+            print(dices[[8, 4, 3, 2, 6, 11, 1, 7]])
             dice_8 = dices[[1, 2, 3, 4, 6, 7, 8, 11]].mean()
             result["val/mdice_8"] = dice_8
         self.log_dict(result, sync_dist=True)
@@ -341,6 +342,7 @@ class SegmentationModel(pl.LightningModule):
                 "test/mdice_nobg": dices[1:].mean(),
             }
             if len(dices) == 14:
+                print(dices[[8, 4, 3, 2, 6, 11, 1, 7]])
                 dice_8 = dices[[1, 2, 3, 4, 6, 7, 8, 11]].mean()
                 result["test/mdice_8"] = dice_8
             self.log_dict(result, sync_dist=True)
