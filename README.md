@@ -106,8 +106,7 @@ python compute_flops.py
 Should get `2D FLOPS: 213343401984` and `3D FLOPS: 214954014720`, which indicates there is little increased computational cost of our method.
 
 ## Citation
-If you use this repo in your research, please cite it as
-follows. :
+If you use this repo in your research, please kindly cite it as follows:
 ```
 @inproceedings{zhang2022adapting,
   title={Adapting Pre-trained Vision Transformers from 2D to 3D through Weight Inflation Improves Medical Image Segmentation},
