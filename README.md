@@ -7,7 +7,7 @@
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 This repo provides the PyTorch source code of our paper: 
-Adapting Pre-trained Vision Transformers from 2D to 3D through Weight Inflation Improves Medical Image Segmentation. 
+Adapting Pre-trained Vision Transformers from 2D to 3D through Weight Inflation Improves Medical Image Segmentation. [[Paper]](https://proceedings.mlr.press/v193/zhang22a/zhang22a.pdf) [[Supp]](https://proceedings.mlr.press/v193/zhang22a/zhang22a-supp.pdf) [[Poster]](https://cs.stanford.edu/~yuhuiz/assets/posters/transseg.pdf)
 
 ## Abstract
 
